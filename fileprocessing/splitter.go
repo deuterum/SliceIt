@@ -2,13 +2,30 @@ package fileprocessing
 
 import (
 	"SliceIt/view"
+	"crypto/sha256"
 	"fmt"
 	"math"
 	"os"
 	"path/filepath"
 )
 
-func Split_file(file_name string, chunk_size float32, folder string) {
+func make_hash_file(file_name, folder string) {
+	file_data, err := os.ReadFile(file_name)
+	if err != nil {
+		panic(err)
+	}
+	hash := sha256.Sum256(file_data)
+
+	hash_file, err := os.Create(filepath.Join(folder, "file.sha256"))
+	if err != nil {
+		panic(err)
+	}
+	hash_file.Write(hash[:])
+
+	fmt.Println("checksum file file.sha256 created in ", folder)
+}
+
+func Split_file(file_name string, chunk_size float32, folder string, use_checksum bool) {
 	chunk_size_bytes_float := chunk_size * 1024 * 1024
 	chunk_buffer := make([]byte, int(chunk_size_bytes_float))
 
@@ -41,7 +58,11 @@ func Split_file(file_name string, chunk_size float32, folder string) {
 		panic(err)
 	}
 
-	fmt.Print("Progress :\n")
+	if use_checksum {
+		make_hash_file(file_name, folder)
+	}
+
+	fmt.Print("\nProgress\n")
 	for part_num := 0; part_num < total_parts; part_num++ {
 		n, err := file.Read(chunk_buffer)
 		if err != nil {

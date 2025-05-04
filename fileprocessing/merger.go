@@ -2,6 +2,8 @@ package fileprocessing
 
 import (
 	"SliceIt/view"
+	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
@@ -10,6 +12,23 @@ import (
 	"strconv"
 	"strings"
 )
+
+func checkHashFile(filename, folder, merged_file_folder string) bool {
+	hashBefore, err := os.ReadFile(filepath.Join(folder, "file.sha256"))
+	if err != nil {
+		panic(err)
+	}
+
+	fileData, err := os.ReadFile(filepath.Join(merged_file_folder, filename))
+	if err != nil {
+		panic(err)
+	}
+
+	hashAfter := sha256.Sum256(fileData)
+
+	// Преобразуем [32]byte в []byte
+	return bytes.Equal(hashBefore, hashAfter[:])
+}
 
 func Merge_file(output_name, folder, base_name string) {
 	// Получаем путь к текущему исполняемому файлу
@@ -65,7 +84,7 @@ func Merge_file(output_name, folder, base_name string) {
 	fmt.Println("Filename      : ", base_name)
 	fmt.Println("Chunks amount : ", len(partFiles))
 
-	fmt.Println("Merging parts :")
+	fmt.Println("\nMerging parts")
 	for i, part := range partFiles {
 		part_path := filepath.Join(folder, part)
 		part_file, err := os.Open(part_path)
@@ -82,7 +101,14 @@ func Merge_file(output_name, folder, base_name string) {
 		view.Bar(i+1, len(partFiles))
 	}
 
-	fmt.Println("\nFile merged successfully into : ", output_path)
+	fmt.Println("\n\nFile merged successfully into : ", output_path)
+
+	checksum_passed := checkHashFile(output_name, folder, execDir)
+	if checksum_passed {
+		fmt.Println("Checksum succefully passed")
+	} else {
+		fmt.Println("hash check failed or hash file was not found")
+	}
 
 	if useExecDir {
 		// Удаляем .part-файлы по отдельности
@@ -93,6 +119,7 @@ func Merge_file(output_name, folder, base_name string) {
 				fmt.Println("Warning: failed to remove part file:", part, "-", err)
 			}
 		}
+		os.Remove(filepath.Join(folder, "file.sha256"))
 		fmt.Println("Removed individual .part files from executable folder.")
 	} else {
 		// Удаляем папку целиком
