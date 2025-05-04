@@ -2,6 +2,7 @@ package main
 
 import (
 	"SliceIt/fileprocessing"
+	"SliceIt/view"
 	"flag"
 	"fmt"
 	"os"
@@ -15,8 +16,13 @@ func main() {
 	file := flag.String("file", "", "Name of file to split or merge")
 	part_size := flag.Float64("part_size", 10.0, "Size of part (Mb)")
 	use_hash := flag.Bool("hash", false, "Use sha256 checksum")
+	help := flag.Bool("help", false, "View README.md")
 
 	flag.Parse()
+
+	if *help {
+		view.ViewReadme()
+	}
 
 	if *file == "" {
 		fmt.Println("Please provide a file name using -file flag")

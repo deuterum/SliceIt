@@ -14,6 +14,10 @@
 SpliceIt -mode=<split|merge> -file=<filename> [-part_size=<MB>] [-folder=<folder_path>]
 ```
 
+## Requirements
+
+- github.com/charmbracelet/glamour
+
 ## Flags
 
 | Flag         | Description                                                   | Required |
