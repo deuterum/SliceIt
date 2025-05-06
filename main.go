@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const VERSION string = "0.0.1\n\n"
+	const VERSION string = "0.1.1\n\n"
 
 	mode := flag.String("mode", "", "Split or merge file")
 	folder := flag.String("folder", "", "Folder for .part files")

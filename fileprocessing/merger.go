@@ -13,21 +13,26 @@ import (
 	"strings"
 )
 
-func checkHashFile(filename, folder, merged_file_folder string) bool {
+func CheckHashFile(filename, folder, merged_file_folder string) bool {
 	hashBefore, err := os.ReadFile(filepath.Join(folder, "file.sha256"))
 	if err != nil {
 		panic(err)
 	}
 
-	fileData, err := os.ReadFile(filepath.Join(merged_file_folder, filename))
+	file, err := os.Open(filepath.Join(merged_file_folder, filename))
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
-	hashAfter := sha256.Sum256(fileData)
+	hasher := sha256.New()
+	_, err = io.Copy(hasher, file)
+	if err != nil {
+		panic(err)
+	}
+	hashAfter := hasher.Sum(nil)
 
-	// Преобразуем [32]byte в []byte
-	return bytes.Equal(hashBefore, hashAfter[:])
+	return bytes.Equal(hashBefore, hashAfter)
 }
 
 func Merge_file(output_name, folder, base_name string) {
@@ -103,7 +108,7 @@ func Merge_file(output_name, folder, base_name string) {
 
 	fmt.Println("\n\nFile merged successfully into : ", output_path)
 
-	checksum_passed := checkHashFile(output_name, folder, execDir)
+	checksum_passed := CheckHashFile(output_name, folder, execDir)
 	if checksum_passed {
 		fmt.Println("Checksum succefully passed")
 	} else {

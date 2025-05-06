@@ -4,23 +4,36 @@ import (
 	"SliceIt/view"
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
 )
 
-func make_hash_file(file_name, folder string) {
-	file_data, err := os.ReadFile(file_name)
+func MakeHashFile(file_name, folder string) {
+	file, err := os.Open(file_name)
 	if err != nil {
 		panic(err)
 	}
-	hash := sha256.Sum256(file_data)
+	defer file.Close()
 
+	hasher := sha256.New()
+	_, err = io.Copy(hasher, file)
+	if err != nil {
+		panic(err)
+	}
+
+	hash_sum := hasher.Sum(nil)
 	hash_file, err := os.Create(filepath.Join(folder, "file.sha256"))
 	if err != nil {
 		panic(err)
 	}
-	hash_file.Write(hash[:])
+	defer hash_file.Close()
+
+	_, err = hash_file.Write(hash_sum)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("checksum file file.sha256 created in ", folder)
 }
@@ -59,7 +72,7 @@ func Split_file(file_name string, chunk_size float32, folder string, use_checksu
 	}
 
 	if use_checksum {
-		make_hash_file(file_name, folder)
+		MakeHashFile(file_name, folder)
 	}
 
 	fmt.Print("\nProgress\n")

@@ -27,6 +27,7 @@ SpliceIt -mode=<split|merge> -file=<filename> [-part_size=<MB>] [-folder=<folder
 | `-part_size` | Size of each part in megabytes (default: 10)                  | No       |
 | `-folder`    | Folder to save/load `.part` files (optional)                  | No       |
 | `-hash`      | Use hash to verify file after splitting (default: false)      | No       |
+| `-help`      | VIew README.md                                                | No       |
 
 ## Output
 
