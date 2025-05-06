@@ -42,8 +42,15 @@ func Split_file(file_name string, chunk_size float32, folder string, use_checksu
 	chunk_size_bytes_float := chunk_size * 1024 * 1024
 	chunk_buffer := make([]byte, int(chunk_size_bytes_float))
 
+	// Получаем путь к текущему исполняемому файлу
+	execPath, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	execDir := filepath.Dir(execPath)
+
 	if folder == "" {
-		folder = "parts"
+		folder = execDir
 	}
 
 	file, err := os.Open(file_name)
