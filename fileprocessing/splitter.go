@@ -38,7 +38,7 @@ func MakeHashFile(file_name, folder string) {
 	fmt.Println("checksum file file.sha256 created in ", folder)
 }
 
-func Split_file(file_name string, chunk_size float32, folder string, use_checksum bool) {
+func Split_file(file_name string, chunk_size float32, folder string, use_checksum bool, delete_after_split bool) {
 	chunk_size_bytes_float := chunk_size * 1024 * 1024
 	chunk_buffer := make([]byte, int(chunk_size_bytes_float))
 
@@ -104,5 +104,14 @@ func Split_file(file_name string, chunk_size float32, folder string, use_checksu
 
 		chunk_file.Close()
 		view.Bar(part_num+1, total_parts)
+	}
+
+	if delete_after_split {
+		err = os.Remove(file_name)
+		if err != nil {
+			fmt.Println("failed file deleting")
+		} else {
+			fmt.Println("file ", file_name, " successfully removed")
+		}
 	}
 }

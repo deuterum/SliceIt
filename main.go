@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const VERSION string = "0.1.2\n\n"
+	const VERSION string = "0.2.2\n\n"
 
 	mode := flag.String("mode", "", "Split or merge file")
 	folder := flag.String("folder", "", "Folder for .part files")
@@ -17,6 +17,7 @@ func main() {
 	part_size := flag.Float64("part_size", 10.0, "Size of part (Mb)")
 	use_hash := flag.Bool("hash", false, "Use sha256 checksum")
 	help := flag.Bool("help", false, "View README.md")
+	delete_after_split := flag.Bool("remove", false, "Delete source file after splitting")
 
 	flag.Parse()
 
@@ -32,7 +33,7 @@ func main() {
 	fmt.Print("SliceIt ", VERSION)
 	switch *mode {
 	case "split":
-		fileprocessing.Split_file(*file, float32(*part_size), *folder, *use_hash)
+		fileprocessing.Split_file(*file, float32(*part_size), *folder, *use_hash, *delete_after_split)
 	case "merge":
 		fileprocessing.Merge_file(*file, *folder, *file)
 	default:
